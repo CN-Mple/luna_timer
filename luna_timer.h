@@ -29,9 +29,9 @@ typedef void (*luna_timer_callback_t)(struct core_timer *timer);
 #endif
 
 struct core_timer {
-    struct core_timer *next;
-    tick_type_t when;
-    luna_timer_callback_t callback;
+        struct core_timer *next;
+        tick_type_t when;
+        luna_timer_callback_t callback;
 };
 
 void luna_timer_append(struct core_timer **head, struct core_timer *timer);

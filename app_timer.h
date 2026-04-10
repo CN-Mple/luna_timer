@@ -13,12 +13,12 @@
 
 #ifndef LUNA_MALLOC
 #include <stdlib.h>
-#define LUNA_MALLOC	malloc
+#define LUNA_MALLOC			malloc
 #endif
 
 #ifndef LUNA_FREE
 #include <stdlib.h>
-#define LUNA_FREE	free
+#define LUNA_FREE			free
 #endif
 
 struct apptimer;
@@ -26,13 +26,13 @@ struct apptimer;
 typedef void (*app_timer_callback_t)(void *arg);
 
 struct apptimer {
-    struct core_timer timer;
+	struct core_timer timer;
 
-    app_timer_callback_t callback;
-    void *arg;
-    
-    uint32_t handle;
-    bool scheduled;
+	app_timer_callback_t callback;
+	void *arg;
+
+	uint32_t handle;
+	bool scheduled;
 };
 
 struct core_timer **app_timer_get_head();
