@@ -29,6 +29,8 @@ int main()
         return 0;
 }
 ```
+# app_timer
+
 ``` c
 /* main.c */
 #include <stdio.h>
