@@ -29,3 +29,31 @@ int main()
         return 0;
 }
 ```
+``` c
+/* main.c */
+#include <stdio.h>
+#define LUNA_TIMER_IMPLEMENTATION
+#include "luna_timer.h"
+#undef LUNA_TIMER_IMPLEMENTATION
+
+#define APP_TIMER_IMPLEMENTATION
+#include "app_timer.h"
+#undef APP_TIMER_IMPLEMENTATION
+
+uint32_t handle = 0;
+
+void _app_timer_callback(void *arg)
+{
+        printf("hello world.\n");
+        handle = app_timer_register(500, _app_timer_callback, 0);
+}
+
+int main()
+{
+        handle = app_timer_register(500, _app_timer_callback, 0);
+        while (1) {
+                luna_timer_expired(app_timer_get_head());
+        }
+        return 0;
+}
+```
