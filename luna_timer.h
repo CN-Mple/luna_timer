@@ -10,8 +10,8 @@ typedef size_t                          tick_type_t;
 typedef void (*luna_timer_callback_t)(struct core_timer *timer);
 
 #ifndef LUNA_GET_TICK
-#include <windows.h>
-#define LUNA_GET_TICK                   GetTickCount
+#include <time.h>
+#define LUNA_GET_TICK()    (tick_type_t)(clock() * 1000 / CLOCKS_PER_SEC)
 #endif
 
 #ifndef LUNA_ASSERT

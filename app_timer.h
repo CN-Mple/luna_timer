@@ -12,10 +12,12 @@
 #endif
 
 #ifndef LUNA_MALLOC
+#include <stdlib.h>
 #define LUNA_MALLOC	malloc
 #endif
 
 #ifndef LUNA_FREE
+#include <stdlib.h>
 #define LUNA_FREE	free
 #endif
 
