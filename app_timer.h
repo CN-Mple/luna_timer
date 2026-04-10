@@ -14,10 +14,6 @@
 #define LUNA_FREE	free
 #endif
 
-#ifndef LUNA_APP_TIMER_HEAD
-#define LUNA_APP_TIMER_HEAD	
-#endif
-
 struct apptimer;
 
 typedef void (*app_timer_callback_t)(void *arg);
