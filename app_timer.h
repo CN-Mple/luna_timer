@@ -6,6 +6,11 @@
 #include <stdint.h>
 #include <string.h>
 
+#ifndef LUNA_ASSERT
+#include <assert.h>
+#define LUNA_ASSERT                     assert
+#endif
+
 #ifndef LUNA_MALLOC
 #define LUNA_MALLOC	malloc
 #endif
@@ -77,11 +82,9 @@ static struct apptimer *app_timer_get_by_id(uint32_t handle)
 uint32_t app_timer_register(uint32_t ms, app_timer_callback_t callback, void *arg)
 {
 	struct apptimer *timer = LUNA_MALLOC(sizeof(struct apptimer));
+	LUNA_ASSERT(timer);
+	
 	memset(timer, 0, sizeof(struct apptimer));
-	if(timer == 0)
-	{
-		return 0;
-	}
 	timer->timer.when     = LUNA_GET_TICK() + ms;
 	timer->timer.callback = app_timer_callback;
 	timer->callback       = callback;
@@ -100,9 +103,10 @@ void app_timer_cancel(uint32_t handle)
 	if (!timer) {
 		return;
 	}
-	if (timer->scheduled) {
-		luna_timer_remove(&timer_head, &timer->timer);
+	if (!(timer->scheduled)) {
+		return;
 	}
+	luna_timer_remove(&timer_head, &timer->timer);
 	LUNA_FREE(timer);
 }
 
