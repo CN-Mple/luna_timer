@@ -44,15 +44,18 @@ uint32_t handle = 0;
 
 void _app_timer_callback(void *arg)
 {
-        printf("hello world.\n");
-        handle = app_timer_register(500, _app_timer_callback, 0);
+        int *number = (int *)arg;
+        printf("number is %d.\n", *number);
+        (*number)++;
+        handle = app_timer_register(500, _app_timer_callback, arg);
 }
 
 int main()
 {
-        handle = app_timer_register(500, _app_timer_callback, 0);
+        int number = 0;
+        handle = app_timer_register(500, _app_timer_callback, &number);
         while (1) {
-                luna_timer_expired(app_timer_get_head());
+                luna_timer_run(app_timer_get_head());
         }
         return 0;
 }
