@@ -107,7 +107,8 @@ LUNA_TICK_TYPE luna_timer_run(struct core_timer **head)
         next_expiry = luna_timer_get_next_expiry(head);
         if (0 == next_expiry) {
                struct core_timer *timer = *head;
-                *head = timer->next;
+                *head                   = timer->next;
+                timer->next             = timer;
                 if (timer->callback) {
                         timer->callback(timer);
                 }
