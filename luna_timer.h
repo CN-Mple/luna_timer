@@ -57,7 +57,7 @@ void luna_timer_append(struct core_timer **head, struct core_timer *timer)
 
         struct core_timer **next = head;
         LUNA_TICK_TYPE when = timer->when;
-
+        
         while (*next && LUNA_LESS_THAN(LUNA_TICK_TYPE, (*next)->when, when)) {
                 next = &((*next)->next);
         }
@@ -69,9 +69,10 @@ void luna_timer_remove(struct core_timer **head, struct core_timer *timer)
 {
         LUNA_ASSERT(head);
         LUNA_ASSERT(timer);
-
+        if(*head) {
+                return;
+        }
         struct core_timer **next = head;
-
         while (*next) {
                 if (*next == timer) {
                         *next = timer->next;
@@ -83,7 +84,8 @@ void luna_timer_remove(struct core_timer **head, struct core_timer *timer)
 
 LUNA_TICK_TYPE luna_timer_get_next_expiry(struct core_timer **head)
 {
-        if (!head) {
+        LUNA_ASSERT(head);
+        if (!(*head)) {
                 return (LUNA_TICK_TYPE)-1;
         }
         LUNA_TICK_TYPE now  = LUNA_GET_TICK();
@@ -98,8 +100,10 @@ LUNA_TICK_TYPE luna_timer_get_next_expiry(struct core_timer **head)
 LUNA_TICK_TYPE luna_timer_run(struct core_timer **head)
 {
         LUNA_ASSERT(head);
+        if(!(*head)) {
+                return (LUNA_TICK_TYPE)-1;
+        }
         LUNA_TICK_TYPE next_expiry;
-
         next_expiry = luna_timer_get_next_expiry(head);
         if (0 == next_expiry) {
                struct core_timer *timer = *head;
