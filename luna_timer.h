@@ -69,7 +69,7 @@ void luna_timer_remove(struct core_timer **head, struct core_timer *timer)
 {
         LUNA_ASSERT(head);
         LUNA_ASSERT(timer);
-        if(*head) {
+        if(!(*head)) {
                 return;
         }
         struct core_timer **next = head;
