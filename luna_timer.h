@@ -6,7 +6,7 @@
 
 struct core_timer;
 
-typedef void (*luna_timer_callback_t)(struct core_timer *timer);
+typedef void (*core_timer_callback_t)(struct core_timer *timer);
 
 #ifndef LUNA_TICK_TYPE
 #define LUNA_TICK_TYPE                 uint32_t
@@ -37,7 +37,7 @@ static inline LUNA_TICK_TYPE LUNA_GET_TICK(void)
 struct core_timer {
         struct core_timer *next;
         LUNA_TICK_TYPE when;
-        luna_timer_callback_t callback;
+        core_timer_callback_t callback;
 };
 
 void luna_timer_append(struct core_timer **head, struct core_timer *timer);
