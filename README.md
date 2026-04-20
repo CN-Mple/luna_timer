@@ -29,7 +29,7 @@ int main()
         return 0;
 }
 ```
-# app_timer
+# luna_timer
 
 ``` c
 /* main.c */
@@ -37,28 +37,52 @@ int main()
 #define LUNA_TIMER_IMPLEMENTATION
 #include "luna_timer.h"
 #undef LUNA_TIMER_IMPLEMENTATION
+#include <stdio.h>
+#include <unistd.h>
 
-#define APP_TIMER_IMPLEMENTATION
-#include "app_timer.h"
-#undef APP_TIMER_IMPLEMENTATION
+static struct core_timer *timer_head = NULL;
 
-uint32_t handle = 0;
-
-void _app_timer_callback(void *arg)
+void timer_periodic_cb(void *arg)
 {
-        int *number = (int *)arg;
-        printf("number is %d.\n", *number);
-        (*number)++;
-        handle = app_timer_register(500, _app_timer_callback, arg);
+        printf("[Periodic] Triggered every 1 second\n");
 }
 
-int main()
+void timer_oneshot_cb(void *arg)
 {
-        int number = 0;
-        handle = app_timer_register(500, _app_timer_callback, &number);
-        while (1) {
-                luna_timer_run(app_timer_get_head());
+        printf("[One-shot] Triggered once after 2.5 seconds\n");
+}
+
+int main(void)
+{
+        struct auto_timer timer1;
+        struct auto_timer timer2;
+
+        printf("Autotimer example started\n");
+
+        luna_timer_init(&timer1,
+			&timer_head,
+			1000,
+			TIMER_PERIODIC,
+			timer_periodic_cb,
+			NULL);
+
+        luna_timer_init(&timer2,
+			&timer_head,
+			2500,
+			TIMER_ONE_SHOT,
+			timer_oneshot_cb,
+			NULL);
+
+        luna_timer_start(&timer1);
+        luna_timer_start(&timer2);
+
+        while (1)
+        {
+                luna_timer_run(&timer_head);
+                usleep(1000);
         }
+
         return 0;
 }
+
 ```
