@@ -141,7 +141,7 @@ LUNA_TICK_TYPE luna_timer_run(struct core_timer **head)
         return next_expiry;
 }
 
-
+///////////////////////////////////////////////////////////////////////////////
 
 static void _core_timer_callback(struct core_timer *super)
 {
