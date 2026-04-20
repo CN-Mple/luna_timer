@@ -151,7 +151,7 @@ static void _core_timer_callback(struct core_timer *super)
 	if (timer->mode == TIMER_ONE_SHOT) {
 
 	} else {
-		timer->super.when = LUNA_GET_TICK() + timer->interval;
+		timer->super.when = timer->super.when + timer->interval;
 		luna_timer_append(timer->header, &timer->super);
 		timer->running    = 1;
 	}
