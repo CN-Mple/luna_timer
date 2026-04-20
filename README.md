@@ -24,7 +24,11 @@ int main()
         luna_timer_append(&head, &timer);
 
         while (1) {
-                luna_timer_run(&head);
+                LUNA_TICK_TYPE next;
+				size_t i = 8;
+				do {
+					next = luna_timer_run(&head);
+				} while(i-- && next == 0);
         }
         return 0;
 }
