@@ -46,6 +46,31 @@ void luna_timer_remove(struct core_timer **head, struct core_timer *timer);
 LUNA_TICK_TYPE luna_timer_get_next_expiry(struct core_timer **head);
 LUNA_TICK_TYPE luna_timer_run(struct core_timer **head);
 
+typedef void(*auto_timer_callback_t)(void *arg);
+
+typedef enum {
+	TIMER_ONE_SHOT = 0,
+	TIMER_PERIODIC = 1,
+} auto_timer_mode_t;
+
+struct auto_timer {
+	struct core_timer     super;
+
+	struct core_timer   **header;
+	uint32_t              running;
+	LUNA_TICK_TYPE        interval;
+	auto_timer_mode_t     mode;
+
+	auto_timer_callback_t callback;
+	void                 *arg;
+};
+
+void luna_timer_init(struct auto_timer *timer, struct core_timer **header, LUNA_TICK_TYPE interval, auto_timer_mode_t mode, auto_timer_callback_t callback, void *user_data);
+void luna_timer_start(struct auto_timer *timer);
+void luna_timer_stop(struct auto_timer *timer);
+void luna_timer_restart(struct auto_timer *timer);
+void luna_timer_set_interval(struct auto_timer *timer, LUNA_TICK_TYPE interval);
+
 #endif
 
 #ifdef LUNA_TIMER_IMPLEMENTATION
@@ -114,6 +139,83 @@ LUNA_TICK_TYPE luna_timer_run(struct core_timer **head)
                 }
         }
         return next_expiry;
+}
+
+
+
+static void _core_timer_callback(struct core_timer *super)
+{
+	struct auto_timer *timer = (struct auto_timer *)super;
+	timer->running = 0;
+
+	if (timer->mode == TIMER_ONE_SHOT) {
+
+	} else {
+		timer->super.when = LUNA_GET_TICK() + timer->interval;
+		luna_timer_append(timer->header, &timer->super);
+		timer->running    = 1;
+	}
+	if (timer->callback) {
+		timer->callback(timer->arg);
+	}
+}
+
+void luna_timer_init(struct auto_timer *timer, struct core_timer **header, LUNA_TICK_TYPE interval, auto_timer_mode_t mode, auto_timer_callback_t callback, void *arg)
+{
+	LUNA_ASSERT(timer);
+	LUNA_ASSERT(interval <= (((LUNA_TICK_TYPE)-1) >> 1));
+
+	timer->super.next     = NULL;
+	timer->super.callback = _core_timer_callback;
+	timer->header         = header;
+	timer->interval       = interval;
+	timer->mode           = mode;
+	timer->running        = 0;
+	timer->callback       = callback;
+	timer->arg            = arg;
+}
+
+void luna_timer_start(struct auto_timer *timer)
+{
+	LUNA_ASSERT(timer);
+
+	if (timer->running) {
+		return;
+	}
+	timer->super.when = LUNA_GET_TICK() + timer->interval;
+	luna_timer_append(timer->header, &timer->super);
+	timer->running    = 1;
+}
+
+void luna_timer_stop(struct auto_timer *timer)
+{
+	LUNA_ASSERT(timer);
+
+	if (!timer->running) {
+		return;
+	}
+	luna_timer_remove(timer->header, &timer->super);
+	timer->running = 0;
+}
+
+void luna_timer_restart(struct auto_timer *timer)
+{
+	LUNA_ASSERT(timer);
+
+	luna_timer_stop(timer);
+	luna_timer_start(timer);
+}
+
+void luna_timer_set_interval(struct auto_timer *timer, LUNA_TICK_TYPE interval)
+{
+	LUNA_ASSERT(timer);
+        LUNA_ASSERT(interval > 0);
+	LUNA_ASSERT(interval <= (((LUNA_TICK_TYPE)-1) >> 1));
+        if (timer->running) {
+            luna_timer_stop(timer);
+        }
+	timer->interval = interval;
+	luna_timer_start(timer);
 }
 
 #endif
