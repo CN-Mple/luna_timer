@@ -41,7 +41,6 @@ int main()
 #define LUNA_TIMER_IMPLEMENTATION
 #include "luna_timer.h"
 #undef LUNA_TIMER_IMPLEMENTATION
-#include <stdio.h>
 #include <unistd.h>
 
 static struct core_timer *timer_head = NULL;
