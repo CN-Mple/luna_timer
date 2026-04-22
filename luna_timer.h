@@ -9,11 +9,12 @@ struct core_timer;
 typedef void (*core_timer_callback_t)(struct core_timer *timer);
 
 #ifndef LUNA_TICK_TYPE
-#define LUNA_TICK_TYPE                 uint32_t
+#define LUNA_TICK_TYPE                  uint32_t
 #endif
 
 #ifndef LUNA_GET_TICK
 #include <time.h>
+#define LUNA_GET_TICK                   LUNA_GET_TICK
 static inline LUNA_TICK_TYPE LUNA_GET_TICK(void)
 {
         return (LUNA_TICK_TYPE)(clock() * 1000 / CLOCKS_PER_SEC);
@@ -82,7 +83,7 @@ void luna_timer_append(struct core_timer **head, struct core_timer *timer)
 
         struct core_timer **next = head;
         LUNA_TICK_TYPE when = timer->when;
-        
+
         while (*next && LUNA_LESS_THAN(LUNA_TICK_TYPE, (*next)->when, when)) {
                 next = &((*next)->next);
         }
