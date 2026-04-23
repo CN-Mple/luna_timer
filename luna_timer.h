@@ -14,11 +14,11 @@ typedef void (*core_timer_callback_t)(struct core_timer *timer);
 
 #ifndef LUNA_GET_TICK
 #include <time.h>
-#define LUNA_GET_TICK                   LUNA_GET_TICK
-static inline LUNA_TICK_TYPE LUNA_GET_TICK(void)
+static inline LUNA_TICK_TYPE luna_get_tick(void)
 {
         return (LUNA_TICK_TYPE)(clock() * 1000 / CLOCKS_PER_SEC);
 }
+#define LUNA_GET_TICK                   luna_get_tick
 #endif
 
 #ifndef LUNA_ASSERT
