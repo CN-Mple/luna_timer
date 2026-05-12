@@ -149,15 +149,15 @@ static void _core_timer_callback(struct core_timer *super)
 	struct auto_timer *timer = (struct auto_timer *)super;
 	timer->running = 0;
 
+	if (timer->callback) {
+		timer->callback(timer->arg);
+	}
 	if (timer->mode == TIMER_ONE_SHOT) {
 
 	} else {
 		timer->super.when = timer->super.when + timer->interval;
 		luna_timer_append(timer->header, &timer->super);
 		timer->running    = 1;
-	}
-	if (timer->callback) {
-		timer->callback(timer->arg);
 	}
 }
 
