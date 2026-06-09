@@ -37,7 +37,7 @@ static inline LUNA_TICK_TYPE luna_get_tick(void)
 
 struct core_timer {
         struct core_timer *next;
-        LUNA_TICK_TYPE when;
+        LUNA_TICK_TYPE when;            //tick less than half of type.
         core_timer_callback_t callback;
 };
 
@@ -222,11 +222,9 @@ void luna_timer_restart(struct auto_timer *timer)
 void luna_timer_set_interval(struct auto_timer *timer, LUNA_TICK_TYPE interval)
 {
 	LUNA_ASSERT(timer);
-    LUNA_ASSERT(interval > 0);
+	LUNA_ASSERT(interval > 0);
 	LUNA_ASSERT(interval <= (((LUNA_TICK_TYPE)-1) >> 1));
-    if (timer->running) {
-            luna_timer_stop(timer);
-        }
+	luna_timer_stop(timer);
 	timer->interval = interval;
 	luna_timer_start(timer);
 }
