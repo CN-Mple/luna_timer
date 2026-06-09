@@ -125,21 +125,32 @@ LUNA_TICK_TYPE luna_timer_get_next_expiry(struct core_timer **head)
 
 LUNA_TICK_TYPE luna_timer_run(struct core_timer **head)
 {
-        LUNA_ASSERT(head);
-        if(!(*head)) {
-                return (LUNA_TICK_TYPE)-1;
-        }
-        LUNA_TICK_TYPE next_expiry;
-        next_expiry = luna_timer_get_next_expiry(head);
-        if (0 == next_expiry) {
-               struct core_timer *timer = *head;
-                *head                   = timer->next;
-                timer->next             = 0;
-                if (timer->callback) {
-                        timer->callback(timer);
-                }
-        }
-        return next_expiry;
+	LUNA_ASSERT(head);
+	if (!(*head)) {
+		return (LUNA_TICK_TYPE)-1;
+	}
+
+	LUNA_TICK_TYPE now = LUNA_GET_TICK();
+	struct core_timer *expired = 0;
+	while (*head) {
+		struct core_timer *timer = *head;
+		if (LUNA_LESS_THAN(LUNA_TICK_TYPE, now, timer->when)) {
+			break;
+		}
+		*head                    = timer->next;
+
+		timer->next              = expired;
+		expired                  = timer;
+	}
+	while (expired) {
+		struct core_timer *timer = expired;
+		expired                  = timer->next;
+		timer->next              = 0;
+		if (timer->callback) {
+			timer->callback(timer);
+		}
+	}
+	return luna_timer_get_next_expiry(head);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -210,9 +221,9 @@ void luna_timer_restart(struct auto_timer *timer)
 void luna_timer_set_interval(struct auto_timer *timer, LUNA_TICK_TYPE interval)
 {
 	LUNA_ASSERT(timer);
-        LUNA_ASSERT(interval > 0);
+    LUNA_ASSERT(interval > 0);
 	LUNA_ASSERT(interval <= (((LUNA_TICK_TYPE)-1) >> 1));
-        if (timer->running) {
+    if (timer->running) {
             luna_timer_stop(timer);
         }
 	timer->interval = interval;
