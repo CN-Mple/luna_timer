@@ -129,23 +129,23 @@ LUNA_TICK_TYPE luna_timer_run(struct core_timer **head)
 	if (!(*head)) {
 		return (LUNA_TICK_TYPE)-1;
 	}
-	LUNA_TICK_TYPE now = LUNA_GET_TICK();
-	struct core_timer *expired = 0;
-	struct core_timer **list = &expired;
+	const LUNA_TICK_TYPE now = LUNA_GET_TICK();
+	struct core_timer *ready = 0;
+	struct core_timer **tail = &ready;
 	while (*head) {
 		struct core_timer *timer = *head;
 		if (LUNA_LESS_THAN(LUNA_TICK_TYPE, now, timer->when)) {
 			break;
 		}
-		*head = timer->next;
-
+		*head       = timer->next;
 		timer->next = 0;
-		*list       = timer;
-		list        = &timer->next;
+		
+		*tail       = timer;
+		tail        = &timer->next;
 	}
-	while (expired) {
-		struct core_timer *timer = expired;
-		expired                  = timer->next;
+	while (ready) {
+		struct core_timer *timer = ready;
+		ready                    = timer->next;
 		timer->next              = 0;
 		if (timer->callback) {
 			timer->callback(timer);
