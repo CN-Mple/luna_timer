@@ -3,37 +3,13 @@
 #define LUNA_TIMER_H
 
 #include <stdint.h>
+#include <stdbool.h>
+
+#include "luna_timer_hal.h"
 
 struct core_timer;
 
 typedef void (*core_timer_callback_t)(struct core_timer *timer);
-
-#ifndef LUNA_TICK_TYPE
-#define LUNA_TICK_TYPE                  uint32_t
-#endif
-
-#ifndef LUNA_GET_TICK
-#include <time.h>
-static inline LUNA_TICK_TYPE luna_get_tick(void)
-{
-        return (LUNA_TICK_TYPE)(clock() * 1000 / CLOCKS_PER_SEC);
-}
-#define LUNA_GET_TICK                   luna_get_tick
-#endif
-
-#ifndef LUNA_ASSERT
-#include <assert.h>
-#define LUNA_ASSERT                     assert
-#endif
-
-#ifndef LUNA_EXPIRED
-#define luna_expired(type, diff)        ((diff) > (((type)-1) >> 1))
-#define LUNA_EXPIRED                    luna_expired
-#endif
-
-#ifndef LUNA_LESS_THAN
-#define LUNA_LESS_THAN(type, a, b)      LUNA_EXPIRED(type, (a) - (b))
-#endif
 
 struct core_timer {
         struct core_timer *next;

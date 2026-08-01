@@ -1,15 +1,22 @@
 /* luna_timer.c */
 #include "luna_timer.h"
 
+static bool luna_timer_expired(LUNA_TICK_TYPE diff)
+{
+        return ((diff) > (((LUNA_TICK_TYPE)-1) >> 1));
+}
+
+static bool luna_timer_less_than(LUNA_TICK_TYPE a, LUNA_TICK_TYPE b)
+{
+        return luna_timer_expired(a - b);
+}
+
 void luna_timer_append(struct core_timer **head, struct core_timer *timer)
 {
-        LUNA_ASSERT(head);
-        LUNA_ASSERT(timer);
-
         struct core_timer **next = head;
         LUNA_TICK_TYPE when = timer->when;
 
-        while (*next && LUNA_LESS_THAN(LUNA_TICK_TYPE, (*next)->when, when)) {
+        while (*next && luna_timer_less_than((*next)->when, when)) {
                 next = &((*next)->next);
         }
         timer->next = *next;
@@ -18,8 +25,6 @@ void luna_timer_append(struct core_timer **head, struct core_timer *timer)
 
 void luna_timer_remove(struct core_timer **head, struct core_timer *timer)
 {
-        LUNA_ASSERT(head);
-        LUNA_ASSERT(timer);
         if(!(*head)) {
                 return;
         }
@@ -35,13 +40,12 @@ void luna_timer_remove(struct core_timer **head, struct core_timer *timer)
 
 LUNA_TICK_TYPE luna_timer_get_next_expiry(struct core_timer **head)
 {
-        LUNA_ASSERT(head);
         if (!(*head)) {
                 return (LUNA_TICK_TYPE)-1;
         }
-        LUNA_TICK_TYPE now  = LUNA_GET_TICK();
+        LUNA_TICK_TYPE now  = luna_timer_get_tick();
         LUNA_TICK_TYPE when = (*head)->when;
-        if (LUNA_LESS_THAN(LUNA_TICK_TYPE, when, now)) {
+        if (luna_timer_less_than(when, now)) {
                 return 0;
         }
 
@@ -50,7 +54,6 @@ LUNA_TICK_TYPE luna_timer_get_next_expiry(struct core_timer **head)
 
 LUNA_TICK_TYPE luna_timer_run(struct core_timer **head)
 {
-        LUNA_ASSERT(head);
         if(!(*head)) {
                 return (LUNA_TICK_TYPE)-1;
         }
@@ -86,9 +89,6 @@ static void _core_timer_callback(struct core_timer *super)
 
 void luna_timer_init(struct auto_timer *timer, struct core_timer **header, LUNA_TICK_TYPE interval, auto_timer_mode_t mode, auto_timer_callback_t callback, void *arg)
 {
-	LUNA_ASSERT(timer);
-	LUNA_ASSERT(interval <= (((LUNA_TICK_TYPE)-1) >> 1));
-
 	timer->super.next     = NULL;
 	timer->super.callback = _core_timer_callback;
 	timer->header         = header;
@@ -101,20 +101,16 @@ void luna_timer_init(struct auto_timer *timer, struct core_timer **header, LUNA_
 
 void luna_timer_start(struct auto_timer *timer)
 {
-	LUNA_ASSERT(timer);
-
 	if (timer->running) {
 		return;
 	}
-	timer->super.when = LUNA_GET_TICK() + timer->interval;
+	timer->super.when = luna_timer_get_tick() + timer->interval;
 	luna_timer_append(timer->header, &timer->super);
 	timer->running    = 1;
 }
 
 void luna_timer_stop(struct auto_timer *timer)
 {
-	LUNA_ASSERT(timer);
-
 	if (!timer->running) {
 		return;
 	}
@@ -124,17 +120,12 @@ void luna_timer_stop(struct auto_timer *timer)
 
 void luna_timer_restart(struct auto_timer *timer)
 {
-	LUNA_ASSERT(timer);
-
 	luna_timer_stop(timer);
 	luna_timer_start(timer);
 }
 
 void luna_timer_set_interval(struct auto_timer *timer, LUNA_TICK_TYPE interval)
 {
-	LUNA_ASSERT(timer);
-        LUNA_ASSERT(interval > 0);
-	LUNA_ASSERT(interval <= (((LUNA_TICK_TYPE)-1) >> 1));
         if (timer->running) {
             luna_timer_stop(timer);
         }

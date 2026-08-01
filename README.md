@@ -1,9 +1,17 @@
 # low-level
+``` C
+/* luna_timer_hal.c */
+#include "luna_timer_hal.h"
 
+LUNA_TICK_TYPE luna_timer_get_tick(void)
+{
+        return (LUNA_TICK_TYPE)(clock() * 1000 / CLOCKS_PER_SEC);
+}
+
+```
 ``` c
 /* main.c */
 #include <stdio.h>
-#define LUNA_TIMER_IMPLEMENTATION
 #include "luna_timer.h"
 
 struct core_timer *head = 0;
@@ -38,9 +46,7 @@ int main()
 ``` c
 /* main.c */
 #include <stdio.h>
-#define LUNA_TIMER_IMPLEMENTATION
 #include "luna_timer.h"
-#undef LUNA_TIMER_IMPLEMENTATION
 #include <unistd.h>
 
 static struct core_timer *timer_head = NULL;
