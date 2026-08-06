@@ -4,8 +4,6 @@
 
 #include <stdint.h>
 
-#define LUNA_TICK_TYPE                  uint32_t
-
-LUNA_TICK_TYPE luna_timer_get_tick(void);
+uint32_t luna_timer_get_tick(void);
 
 #endif

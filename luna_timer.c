@@ -1,12 +1,12 @@
 /* luna_timer.c */
 #include "luna_timer.h"
 
-static bool luna_timer_expired(LUNA_TICK_TYPE diff)
+static bool luna_timer_expired(uint32_t diff)
 {
-        return ((diff) > (((LUNA_TICK_TYPE)-1) >> 1));
+        return ((diff) > (((uint32_t)-1) >> 1));
 }
 
-static bool luna_timer_less_than(LUNA_TICK_TYPE a, LUNA_TICK_TYPE b)
+static bool luna_timer_less_than(uint32_t a, uint32_t b)
 {
         return luna_timer_expired(a - b);
 }
@@ -14,9 +14,9 @@ static bool luna_timer_less_than(LUNA_TICK_TYPE a, LUNA_TICK_TYPE b)
 void luna_timer_append(struct core_timer **head, struct core_timer *timer)
 {
         struct core_timer **next = head;
-        LUNA_TICK_TYPE when = timer->when;
+        uint32_t next_when = timer->when;
 
-        while (*next && luna_timer_less_than((*next)->when, when)) {
+        while (*next && luna_timer_less_than((*next)->when, next_when)) {
                 next = &((*next)->next);
         }
         timer->next = *next;
@@ -38,13 +38,13 @@ void luna_timer_remove(struct core_timer **head, struct core_timer *timer)
         }
 }
 
-LUNA_TICK_TYPE luna_timer_get_next_expiry(struct core_timer **head)
+uint32_t luna_timer_get_next_expiry(struct core_timer **head)
 {
         if (!(*head)) {
-                return (LUNA_TICK_TYPE)-1;
+                return (uint32_t)-1;
         }
-        LUNA_TICK_TYPE now  = luna_timer_get_tick();
-        LUNA_TICK_TYPE when = (*head)->when;
+        uint32_t now  = luna_timer_get_tick();
+        uint32_t when = (*head)->when;
         if (luna_timer_less_than(when, now)) {
                 return 0;
         }
@@ -52,12 +52,12 @@ LUNA_TICK_TYPE luna_timer_get_next_expiry(struct core_timer **head)
         return when - now;
 }
 
-LUNA_TICK_TYPE luna_timer_run(struct core_timer **head)
+uint32_t luna_timer_run(struct core_timer **head)
 {
         if(!(*head)) {
-                return (LUNA_TICK_TYPE)-1;
+                return (uint32_t)-1;
         }
-        LUNA_TICK_TYPE next_expiry;
+        uint32_t next_expiry;
         next_expiry = luna_timer_get_next_expiry(head);
         if (0 == next_expiry) {
                struct core_timer *timer = *head;
@@ -87,7 +87,7 @@ static void _core_timer_callback(struct core_timer *super)
 	}
 }
 
-void luna_timer_init(struct auto_timer *timer, struct core_timer **header, LUNA_TICK_TYPE interval, auto_timer_mode_t mode, auto_timer_callback_t callback, void *arg)
+void luna_timer_init(struct auto_timer *timer, struct core_timer **header, uint32_t interval, auto_timer_mode_t mode, auto_timer_callback_t callback, void *arg)
 {
 	timer->super.next     = NULL;
 	timer->super.callback = _core_timer_callback;
@@ -124,7 +124,7 @@ void luna_timer_restart(struct auto_timer *timer)
 	luna_timer_start(timer);
 }
 
-void luna_timer_set_interval(struct auto_timer *timer, LUNA_TICK_TYPE interval)
+void luna_timer_set_interval(struct auto_timer *timer, uint32_t interval)
 {
         if (timer->running) {
             luna_timer_stop(timer);
