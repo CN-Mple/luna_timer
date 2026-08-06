@@ -14,9 +14,9 @@ static bool luna_timer_less_than(uint32_t a, uint32_t b)
 void luna_timer_append(struct core_timer **head, struct core_timer *timer)
 {
         struct core_timer **next = head;
-        uint32_t next_when = timer->when;
+        uint32_t when = timer->when;
 
-        while (*next && luna_timer_less_than((*next)->when, next_when)) {
+        while (*next && luna_timer_less_than((*next)->when, when)) {
                 next = &((*next)->next);
         }
         timer->next = *next;

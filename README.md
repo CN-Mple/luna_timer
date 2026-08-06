@@ -3,9 +3,9 @@
 /* luna_timer_hal.c */
 #include "luna_timer_hal.h"
 
-LUNA_TICK_TYPE luna_timer_get_tick(void)
+uint32_t luna_timer_get_tick(void)
 {
-        return (LUNA_TICK_TYPE)(clock() * 1000 / CLOCKS_PER_SEC);
+        return (uint32_t)(clock() * 1000 / CLOCKS_PER_SEC);
 }
 
 ```
@@ -32,11 +32,11 @@ int main()
         luna_timer_append(&head, &timer);
 
         while (1) {
-                LUNA_TICK_TYPE next;
-				size_t i = 8;
-				do {
-					next = luna_timer_run(&head);
-				} while(i-- && next == 0);
+                uint32_t next;
+                size_t i = 8;
+                do {
+                        next = luna_timer_run(&head);
+                } while(i-- && next == 0);
         }
         return 0;
 }
