@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "luna_timer_hal.h"
+#include "luna_timer_port.h"
 
 struct core_timer;
 
@@ -35,7 +35,7 @@ struct auto_timer {
 
 	struct core_timer   **header;
 	uint32_t              running;
-	uint32_t        interval;
+	uint32_t              interval;
 	auto_timer_mode_t     mode;
 
 	auto_timer_callback_t callback;
