@@ -5,8 +5,8 @@
 
 struct app_timer {
         struct core_timer    core;
-        uint32_t             interval :31;
-        uint32_t             mode     : 1;
+        uint32_t             msec :31;
+        uint32_t             mode : 1;
         app_timer_callback_t user_callback;
         void                *user_data;
 };
@@ -20,7 +20,7 @@ static void _callback(struct core_timer *core, void *user_data)
                 timer->user_callback(timer->user_data);
         }
         if (timer->mode == TIMER_PERIODIC) {
-                uint32_t when = timer->core.when + timer->interval;
+                uint32_t when = timer->core.when + luna_timer_platform_msec_to_tick(timer->msec);
                 luna_timer_set_when(&timer->core, when);
                 luna_timer_insert(app_timer_get_list(), &timer->core);
         }
@@ -61,7 +61,7 @@ void app_timer_detach(struct app_timer *timer)
         app_timer_stop(timer);
 }
 
-int app_timer_set(struct app_timer *timer, timer_mode_t mode, uint32_t interval_tick, void (*user_callback)(void *user_data), void *user_data)
+int app_timer_set(struct app_timer *timer, timer_mode_t mode, uint32_t msec, void (*user_callback)(void *user_data), void *user_data)
 {
         if (!timer) {
                 return LUNA_TIMER_EINVAL;
@@ -70,7 +70,7 @@ int app_timer_set(struct app_timer *timer, timer_mode_t mode, uint32_t interval_
                 return LUNA_TIMER_EONQUEUE;
         }
         timer->mode          = mode;
-        timer->interval      = interval_tick;
+        timer->msec          = msec;
         timer->user_callback = user_callback;
         timer->user_data     = user_data;
 
@@ -83,7 +83,7 @@ int app_timer_start(struct app_timer *timer)
                 return LUNA_TIMER_EINVAL;
         }
         uint32_t now = luna_timer_platform_get_tick();
-        luna_timer_set_when(&timer->core, now + timer->interval);
+        luna_timer_set_when(&timer->core, now + luna_timer_platform_msec_to_tick(timer->msec));
         return luna_timer_insert(app_timer_get_list(), &timer->core);
 }
 

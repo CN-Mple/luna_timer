@@ -98,7 +98,7 @@ uint32_t luna_timer_next_timeout(struct core_timer_list *list)
         return when - now;
 }
 
-uint32_t luna_timer_run(struct core_timer_list *list)
+uint32_t luna_timer_runloop(struct core_timer_list *list)
 {
         if (!list || !list->head) {
                 return (uint32_t)-1;

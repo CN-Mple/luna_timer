@@ -6,7 +6,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "luna_timer_platform.h"
 
@@ -41,6 +40,6 @@ int luna_timer_insert(struct core_timer_list *list, struct core_timer *timer);
 struct core_timer *luna_timer_remove(struct core_timer_list *list, struct core_timer *timer);
 
 uint32_t luna_timer_next_timeout(struct core_timer_list *list);
-uint32_t luna_timer_run(struct core_timer_list *list);
+uint32_t luna_timer_runloop(struct core_timer_list *list);
 
 #endif
