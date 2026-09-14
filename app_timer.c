@@ -92,8 +92,8 @@ int app_timer_stop(struct app_timer *timer)
         if (!timer) {
                 return LUNA_TIMER_EINVAL;
         }
-        luna_timer_remove(app_timer_get_list(), &timer->core);
-        return LUNA_TIMER_OK;
+        struct core_timer *removed = luna_timer_remove(app_timer_get_list(), &timer->core);
+        return removed ? LUNA_TIMER_OK : LUNA_TIMER_ENOTFOUND;
 }
 
 bool app_timer_is_running(struct app_timer *timer)
