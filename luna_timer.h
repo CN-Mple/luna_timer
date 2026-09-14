@@ -9,10 +9,12 @@
 
 #include "luna_timer_platform.h"
 
-#define LUNA_TIMER_OK            0
-#define LUNA_TIMER_EINVAL       -1
-#define LUNA_TIMER_EONQUEUE     -2
-#define LUNA_TIMER_ENOTFOUND    -3
+#define LUNA_TIMER_OK           ( 0)
+#define LUNA_TIMER_EINVAL       (-1)
+#define LUNA_TIMER_EONQUEUE     (-2)
+#define LUNA_TIMER_ENOTFOUND    (-3)
+
+#define LUNA_TIMER_FOREVER	((uint32_t)-1)
 
 struct core_timer;
 struct core_timer_list;
