@@ -34,7 +34,6 @@ struct app_timer *app_timer_create(void)
         }
         memset(timer, 0, sizeof(*timer));
         luna_timer_set_callback(&timer->core, _callback, NULL);
-        timer->core.destroy = NULL;
         return timer;
 }
 
@@ -52,7 +51,6 @@ void app_timer_init(struct app_timer *mem)
         struct app_timer *timer = mem;
         memset(timer, 0, sizeof(*timer));
         luna_timer_set_callback(&timer->core, _callback, NULL);
-        timer->core.destroy = NULL;
 }
 
 void app_timer_detach(struct app_timer *timer)

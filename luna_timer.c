@@ -1,8 +1,6 @@
 /* luna_timer.c */
 #include "luna_timer.h"
 
-#define LUNA_TIMER_AUTO_FREE	(0)
-
 static bool luna_timer_expired(uint32_t diff)
 {
         return ((diff) > (((uint32_t)-1) >> 1));
@@ -122,9 +120,6 @@ uint32_t luna_timer_run(struct core_timer_list *list)
                         tail = timer;
                 }
         }
-#if LUNA_TIMER_AUTO_FREE
-        struct core_timer *wait = NULL;
-#endif
         struct core_timer *timer;
         timer = head;
         while (timer) {
@@ -133,24 +128,8 @@ uint32_t luna_timer_run(struct core_timer_list *list)
                 if (timer->callback) {
                         timer->callback(timer, timer->data);
                 }
-#if LUNA_TIMER_AUTO_FREE
-                if (!luna_timer_is_onqueue(timer)) {
-                        timer->next = wait;
-                        wait = timer;
-                }
-#endif
                 timer = next;
         }
-#if LUNA_TIMER_AUTO_FREE
-        timer = wait;
-        while (timer) {
-                struct core_timer *next = timer->next;
-                if (timer->destroy) {
-                        timer->destroy(timer);
-                }
-                timer = next;
-        }
-#endif
         timeout = luna_timer_next_timeout(list);
         return timeout;
 }

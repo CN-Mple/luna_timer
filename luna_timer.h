@@ -26,7 +26,6 @@ struct core_timer {
         core_timer_callback_t   callback;
 	void                   *data;
 	bool                    onqueue;
-	void (*destroy)(void *data);
 };
 
 struct core_timer_list {
