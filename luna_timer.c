@@ -1,6 +1,8 @@
 /* luna_timer.c */
 #include "luna_timer.h"
 
+#define LUNA_TIMER_AUTO_FREE	(0)
+
 static bool luna_timer_expired(uint32_t diff)
 {
         return ((diff) > (((uint32_t)-1) >> 1));
@@ -11,40 +13,86 @@ static bool luna_timer_less_than(uint32_t a, uint32_t b)
         return luna_timer_expired(a - b);
 }
 
-void luna_timer_append(struct core_timer **head, struct core_timer *timer)
+bool luna_timer_is_onqueue(struct core_timer *timer)
 {
-        struct core_timer **next = head;
+        if (!timer) {
+                return false;
+        }
+        return timer->onqueue;
+}
+
+int luna_timer_set_callback(struct core_timer *timer, core_timer_callback_t callback, void *data)
+{
+        if (!timer) {
+                return LUNA_TIMER_EINVAL;
+        }
+        if (luna_timer_is_onqueue(timer)) {
+                return LUNA_TIMER_EONQUEUE;
+        }
+        timer->callback = callback;
+        timer->data     = data;
+        return LUNA_TIMER_OK;
+}
+
+int luna_timer_set_when(struct core_timer *timer, uint32_t when)
+{
+        if (!timer) {
+                return LUNA_TIMER_EINVAL;
+        }
+        if (luna_timer_is_onqueue(timer)) {
+                return LUNA_TIMER_EONQUEUE;
+        }
+        timer->when = when;
+        return LUNA_TIMER_OK;
+}
+
+int luna_timer_insert(struct core_timer_list *list, struct core_timer *timer)
+{
+        if (!list || !timer) {
+                return LUNA_TIMER_EINVAL;
+        }
+        if (luna_timer_is_onqueue(timer)) {
+                return LUNA_TIMER_EONQUEUE;
+        }
+        struct core_timer **node = &(list->head);
         uint32_t when = timer->when;
-
-        while (*next && luna_timer_less_than((*next)->when, when)) {
-                next = &((*next)->next);
+        while (*node && luna_timer_less_than((*node)->when, when)) {
+                node = &((*node)->next);
         }
-        timer->next = *next;
-        *next = timer;
+        timer->next = *node;
+        *node = timer;
+        timer->onqueue = true;
+
+        return LUNA_TIMER_OK;
 }
 
-void luna_timer_remove(struct core_timer **head, struct core_timer *timer)
+struct core_timer *luna_timer_remove(struct core_timer_list *list, struct core_timer *timer)
 {
-        if(!(*head)) {
-                return;
+        if (!list || !timer) {
+                return NULL;
         }
-        struct core_timer **next = head;
-        while (*next) {
-                if (*next == timer) {
-                        *next = timer->next;
-                        return;
+        if (!luna_timer_is_onqueue(timer)) {
+                return NULL;
+        }
+        struct core_timer **node = &(list->head);
+        while (*node) {
+                if (*node == timer) {
+                        *node = timer->next;
+                        timer->onqueue = false;
+                        return timer;
                 }
-                next = &(*next)->next;
+                node = &(*node)->next;
         }
+        return NULL;
 }
 
-uint32_t luna_timer_get_next_expiry(struct core_timer **head)
+uint32_t luna_timer_next_timeout(struct core_timer_list *list)
 {
-        if (!(*head)) {
+        if (!list || !list->head) {
                 return (uint32_t)-1;
         }
-        uint32_t now  = luna_timer_get_tick();
-        uint32_t when = (*head)->when;
+        uint32_t now  = luna_timer_platform_get_tick();
+        uint32_t when = list->head->when;
         if (luna_timer_less_than(when, now)) {
                 return 0;
         }
@@ -52,83 +100,57 @@ uint32_t luna_timer_get_next_expiry(struct core_timer **head)
         return when - now;
 }
 
-uint32_t luna_timer_run(struct core_timer **head)
+uint32_t luna_timer_run(struct core_timer_list *list)
 {
-        if(!(*head)) {
+        if (!list || !list->head) {
                 return (uint32_t)-1;
         }
-        uint32_t next_expiry;
-        next_expiry = luna_timer_get_next_expiry(head);
-        if (0 == next_expiry) {
-               struct core_timer *timer = *head;
-                *head                   = timer->next;
-                timer->next             = 0;
-                if (timer->callback) {
-                        timer->callback(timer);
+        struct core_timer *head = NULL;
+        struct core_timer *tail = NULL;
+        uint32_t timeout;
+        while ((timeout = luna_timer_next_timeout(list)) == 0) {
+                struct core_timer *timer = luna_timer_remove(list, list->head);
+                if (!timer) {
+                        break;
+                }
+                timer->next = NULL;
+                if (NULL == head) {
+                        head = timer;
+                        tail = timer;
+                } else {
+                        tail->next = timer;
+                        tail = timer;
                 }
         }
-        return next_expiry;
-}
-
-static void _core_timer_callback(struct core_timer *super)
-{
-	struct auto_timer *timer = (struct auto_timer *)super;
-	timer->running = 0;
-
-	if (timer->mode == TIMER_ONE_SHOT) {
-                
-	} else {
-		timer->super.when = timer->super.when + timer->interval;
-		luna_timer_append(timer->header, &timer->super);
-		timer->running    = 1;
-	}
-	if (timer->callback) {
-		timer->callback(timer->arg);
-	}
-}
-
-void luna_timer_init(struct auto_timer *timer, struct core_timer **header, uint32_t interval, auto_timer_mode_t mode, auto_timer_callback_t callback, void *arg)
-{
-	timer->super.next     = NULL;
-	timer->super.callback = _core_timer_callback;
-	timer->header         = header;
-	timer->interval       = interval;
-	timer->mode           = mode;
-	timer->running        = 0;
-	timer->callback       = callback;
-	timer->arg            = arg;
-}
-
-void luna_timer_start(struct auto_timer *timer)
-{
-	if (timer->running) {
-		return;
-	}
-	timer->super.when = luna_timer_get_tick() + timer->interval;
-	luna_timer_append(timer->header, &timer->super);
-	timer->running    = 1;
-}
-
-void luna_timer_stop(struct auto_timer *timer)
-{
-	if (!timer->running) {
-		return;
-	}
-	luna_timer_remove(timer->header, &timer->super);
-	timer->running = 0;
-}
-
-void luna_timer_restart(struct auto_timer *timer)
-{
-	luna_timer_stop(timer);
-	luna_timer_start(timer);
-}
-
-void luna_timer_set_interval(struct auto_timer *timer, uint32_t interval)
-{
-        if (timer->running) {
-            luna_timer_stop(timer);
+#if LUNA_TIMER_AUTO_FREE
+        struct core_timer *wait = NULL;
+#endif
+        struct core_timer *timer;
+        timer = head;
+        while (timer) {
+                struct core_timer *next = timer->next;
+                timer->next = NULL;
+                if (timer->callback) {
+                        timer->callback(timer, timer->data);
+                }
+#if LUNA_TIMER_AUTO_FREE
+                if (!luna_timer_is_onqueue(timer)) {
+                        timer->next = wait;
+                        wait = timer;
+                }
+#endif
+                timer = next;
         }
-	timer->interval = interval;
-	luna_timer_start(timer);
+#if LUNA_TIMER_AUTO_FREE
+        timer = wait;
+        while (timer) {
+                struct core_timer *next = timer->next;
+                if (timer->destroy) {
+                        timer->destroy(timer);
+                }
+                timer = next;
+        }
+#endif
+        timeout = luna_timer_next_timeout(list);
+        return timeout;
 }

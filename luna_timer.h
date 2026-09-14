@@ -4,48 +4,44 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
-#include "luna_timer_port.h"
+#include "luna_timer_platform.h"
+
+#define LUNA_TIMER_OK            0
+#define LUNA_TIMER_EINVAL       -1
+#define LUNA_TIMER_EONQUEUE     -2
+#define LUNA_TIMER_ENOTFOUND    -3
 
 struct core_timer;
+struct core_timer_list;
 
-typedef void (*core_timer_callback_t)(struct core_timer *timer);
+typedef void (*core_timer_callback_t)(struct core_timer *timer, void *data);
 
 struct core_timer {
-        struct core_timer    *next;
-        uint32_t              when;            //tick less than half of type.
-        core_timer_callback_t callback;
+        struct core_timer      *next;
+        uint32_t                when;            //tick less than half of type.
+        core_timer_callback_t   callback;
+	void                   *data;
+	bool                    onqueue;
+	void (*destroy)(void *data);
 };
 
-void luna_timer_append(struct core_timer **head, struct core_timer *timer);
-void luna_timer_remove(struct core_timer **head, struct core_timer *timer);
-
-uint32_t luna_timer_get_next_expiry(struct core_timer **head);
-uint32_t luna_timer_run(struct core_timer **head);
-
-typedef void(*auto_timer_callback_t)(void *arg);
-
-typedef enum {
-	TIMER_ONE_SHOT = 0,
-	TIMER_PERIODIC = 1,
-} auto_timer_mode_t;
-
-struct auto_timer {
-	struct core_timer     super;
-
-	struct core_timer   **header;
-	uint32_t              running;
-	uint32_t              interval;
-	auto_timer_mode_t     mode;
-
-	auto_timer_callback_t callback;
-	void                 *arg;
+struct core_timer_list {
+	struct core_timer    *head;
 };
 
-void luna_timer_init(struct auto_timer *timer, struct core_timer **header, uint32_t interval, auto_timer_mode_t mode, auto_timer_callback_t callback, void *user_data);
-void luna_timer_start(struct auto_timer *timer);
-void luna_timer_stop(struct auto_timer *timer);
-void luna_timer_restart(struct auto_timer *timer);
-void luna_timer_set_interval(struct auto_timer *timer, uint32_t interval);
+bool luna_timer_is_onqueue(struct core_timer *timer);
+
+int luna_timer_set_callback(struct core_timer *timer, core_timer_callback_t callback, void *data);
+int luna_timer_set_when(struct core_timer *timer, uint32_t when);
+
+int luna_timer_insert(struct core_timer_list *list, struct core_timer *timer);
+struct core_timer *luna_timer_remove(struct core_timer_list *list, struct core_timer *timer);
+
+uint32_t luna_timer_next_timeout(struct core_timer_list *list);
+uint32_t luna_timer_run(struct core_timer_list *list);
 
 #endif
