@@ -4,7 +4,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "luna_timer_platform.h"
@@ -13,6 +12,7 @@
 #define LUNA_TIMER_EINVAL       (-1)
 #define LUNA_TIMER_EONQUEUE     (-2)
 #define LUNA_TIMER_ENOTFOUND    (-3)
+#define LUNA_TIMER_ENOLIST      (-4)
 
 #define LUNA_TIMER_FOREVER	((uint32_t)-1)
 
