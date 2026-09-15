@@ -2,7 +2,7 @@
 ``` C
 /* luna_timer_platform.c */
 #include <windows.h>
-uint32_t luna_timer_platform_get_tick(void)
+uint32_t luna_timer_get_tick(void)
 {
     return GetTickCount();
 }

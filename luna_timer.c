@@ -6,7 +6,7 @@ static bool luna_timer_expired(uint32_t diff)
         return ((diff) > (((uint32_t)-1) >> 1));
 }
 
-static bool luna_timer_less_than(uint32_t a, uint32_t b)
+bool luna_timer_less_than(uint32_t a, uint32_t b)
 {
         return luna_timer_expired(a - b);
 }
@@ -89,7 +89,7 @@ uint32_t luna_timer_next_timeout(struct core_timer_list *list)
         if (!list || !list->head) {
                 return LUNA_TIMER_FOREVER;
         }
-        uint32_t now  = luna_timer_platform_get_tick();
+        uint32_t now  = luna_timer_get_tick();
         uint32_t when = list->head->when;
         if (luna_timer_less_than(when, now)) {
                 return 0;

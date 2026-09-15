@@ -4,8 +4,8 @@
 
 #include <stdint.h>
 
-uint32_t luna_timer_platform_get_tick(void);
-uint32_t luna_timer_platform_tick_to_msec(uint32_t tick);
-uint32_t luna_timer_platform_msec_to_tick(uint32_t msec);
+uint32_t luna_timer_get_tick(void);
+uint32_t luna_timer_tick_to_msec(uint32_t tick);
+uint32_t luna_timer_msec_to_tick(uint32_t msec);
 
 #endif

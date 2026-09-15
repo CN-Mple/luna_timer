@@ -8,13 +8,19 @@ static void _callback(struct core_timer *core, void *user_data)
         (void)user_data;
         struct app_timer *timer = (struct app_timer *)core;
 
-        if (timer->user_callback) {
-                timer->user_callback(timer->user_data);
-        }
         if (timer->mode == TIMER_PERIODIC) {
-                uint32_t when = timer->core.when + luna_timer_platform_msec_to_tick(timer->msec);
+                uint32_t now = luna_timer_get_tick();
+                uint32_t when = timer->core.when + luna_timer_msec_to_tick(timer->msec);
+                if (luna_timer_less_than(when, now)) {
+                        when = now + luna_timer_msec_to_tick(timer->msec);
+                }
                 luna_timer_set_when(&timer->core, when);
                 luna_timer_insert(app_timer_get_list(), &timer->core);
+        }
+        app_timer_callback_t callback = timer->user_callback;
+        void *data = timer->user_data;
+        if (callback) {
+                callback(data);
         }
 }
 
@@ -51,8 +57,8 @@ int app_timer_start(struct app_timer *timer)
         if (luna_timer_is_onqueue(&timer->core)) {
                 return LUNA_TIMER_EONQUEUE;
         }
-        uint32_t now = luna_timer_platform_get_tick();
-        luna_timer_set_when(&timer->core, now + luna_timer_platform_msec_to_tick(timer->msec));
+        uint32_t now = luna_timer_get_tick();
+        luna_timer_set_when(&timer->core, now + luna_timer_msec_to_tick(timer->msec));
         return luna_timer_insert(app_timer_get_list(), &timer->core);
 }
 

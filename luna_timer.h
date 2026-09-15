@@ -30,9 +30,11 @@ struct core_timer {
 };
 
 struct core_timer_list {
-	struct core_timer    *head;
+	struct core_timer *head;
+        void              *lock;
 };
 
+bool luna_timer_less_than(uint32_t a, uint32_t b);
 bool luna_timer_is_onqueue(struct core_timer *timer);
 
 int luna_timer_set_callback(struct core_timer *timer, core_timer_callback_t callback, void *data);
