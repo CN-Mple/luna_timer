@@ -22,7 +22,7 @@ struct app_timer {
 struct app_timer_ops {
     void* (*app_mem_malloc)(size_t size);
     void  (*app_mem_free)(void *p);
-    struct core_timer_list* (*app_get_list)(void);
+    struct core_timer_list* (*app_get_core_timer_list)(void);
 };
 
 int app_timer_init(struct app_timer_ops *ops);
