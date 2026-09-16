@@ -71,8 +71,10 @@ static void _callback(struct core_timer *core, void *user_data)
                 int ret;
                 ret = luna_timer_set_when(&timer->core, when);
                 LUNA_TIMER_ASSERT("luna_timer_set_when fail in periodic callback", ret == LUNA_TIMER_OK);
+                (void)ret;
                 ret = luna_timer_insert(list, &timer->core);
                 LUNA_TIMER_ASSERT("luna_timer_insert fail in periodic callback", ret == LUNA_TIMER_OK);
+                (void)ret;
         }
         app_timer_callback_t callback = timer->user_callback;
         void *data = timer->user_data;
@@ -94,6 +96,7 @@ struct app_timer *app_timer_create(timer_mode_t mode, uint32_t msec, void (*user
         memset(timer, 0, sizeof(struct app_timer));
         int ret = luna_timer_set_callback(&timer->core, _callback, NULL);
         LUNA_TIMER_ASSERT("set callback failed in create", ret == LUNA_TIMER_OK);
+        (void)ret;
 
         timer->mode          = mode;
         timer->msec          = msec;
