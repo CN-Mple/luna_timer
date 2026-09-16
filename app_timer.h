@@ -13,8 +13,9 @@ typedef enum {
 
 struct app_timer {
         struct core_timer    core;
-        uint32_t             msec :31;
-        uint32_t             mode : 1;
+        uint32_t             msec;
+        timer_mode_t         mode;
+        bool                 pending;
         app_timer_callback_t user_callback;
         void                *user_data;
 };

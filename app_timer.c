@@ -54,6 +54,9 @@ static void _callback(struct core_timer *core, void *user_data)
         struct core_timer_list *list = app_get_core_timer_list();
         LUNA_TIMER_ASSERT("core timer list NULL in callback", list != NULL);
 
+        if (timer->pending) {
+                return;
+        }
         if (timer->mode == TIMER_PERIODIC) {
                 uint32_t now = luna_timer_get_tick();
                 uint32_t when = timer->core.when + luna_timer_msec_to_tick(timer->msec);
@@ -93,6 +96,7 @@ struct app_timer *app_timer_create(timer_mode_t mode, uint32_t msec, void (*user
 
         timer->mode          = mode;
         timer->msec          = msec;
+        timer->pending       = false;
         timer->user_callback = user_callback;
         timer->user_data     = user_data;
         return timer;
@@ -124,6 +128,7 @@ int app_timer_static(struct app_timer *timer, timer_mode_t mode, uint32_t msec, 
         }
         timer->mode          = mode;
         timer->msec          = msec;
+        timer->pending       = false;
         timer->user_callback = user_callback;
         timer->user_data     = user_data;
 
@@ -145,6 +150,8 @@ int app_timer_start(struct app_timer *timer)
 
         uint32_t now = luna_timer_get_tick();
         luna_timer_set_when(&timer->core, now + luna_timer_msec_to_tick(timer->msec));
+
+        timer->pending = false;
         return luna_timer_insert(list, &timer->core);
 }
 
@@ -155,6 +162,7 @@ int app_timer_stop(struct app_timer *timer)
                 return LUNA_TIMER_EINVAL;
         }
         struct core_timer *removed = luna_timer_remove(app_get_core_timer_list(), &timer->core);
+        timer->pending = true;
         return removed ? LUNA_TIMER_OK : LUNA_TIMER_ENOTFOUND;
 }
 
