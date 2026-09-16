@@ -1,6 +1,8 @@
 /* luna_timer.c */
 #include "luna_timer.h"
 
+DEFINE_THIS_FILE;
+
 static bool luna_timer_expired(uint32_t diff)
 {
         return ((diff) > (((uint32_t)-1) >> 1));

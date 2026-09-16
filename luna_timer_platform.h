@@ -10,12 +10,6 @@
 #include <stdlib.h>
 #endif
 
-#ifndef LUNA_TIMER_PLATFORM_ASSERT
-        /* Define LUNA_TIMER_PLATFORM_ASSERT to something to catch missing stdio.h includes */
-        void luna_timer_platform_assert(const char *msg, int line, const char *file);
-        #define LUNA_TIMER_PLATFORM_ASSERT(x) luna_timer_platform_assert(x, __LINE__, __FILE__)
-#endif
-
 #include <stdint.h>
 
 uint32_t luna_timer_get_tick(void);

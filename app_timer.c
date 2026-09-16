@@ -2,6 +2,8 @@
 #include "app_timer.h"
 #include <string.h>
 
+DEFINE_THIS_FILE;
+
 static struct app_timer_ops _app_timer_ops;
 
 int app_timer_init(struct app_timer_ops *ops)
