@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "luna_timer_platform.h"
+#include "luna_timer_opts.h"
 
 #define LUNA_TIMER_OK           ( 0)
 #define LUNA_TIMER_EINVAL       (-1)

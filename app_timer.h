@@ -27,6 +27,8 @@ struct app_timer_ops {
 
 int app_timer_init(struct app_timer_ops *ops);
 
+int app_timer_static(struct app_timer *timer, timer_mode_t mode, uint32_t msec, void (*user_callback)(void *user_data), void *user_data);
+
 struct app_timer *app_timer_create(timer_mode_t mode, uint32_t msec, void (*user_callback)(void *user_data), void *user_data);
 void app_timer_delete(struct app_timer *timer);
 
