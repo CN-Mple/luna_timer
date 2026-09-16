@@ -68,9 +68,9 @@ int luna_timer_insert(struct core_timer_list *list, struct core_timer *timer)
         }
         timer->next = *node;
         *node = timer;
-        LUNA_TIMER_ASSERT("insert done: onqueue should be true", timer->onqueue == false);
+        LUNA_TIMER_ASSERT("insert done: onqueue should be true", !timer->onqueue);
         timer->onqueue = true;
-        LUNA_TIMER_ASSERT("insert done: onqueue set true", timer->onqueue == true);
+        LUNA_TIMER_ASSERT("insert done: onqueue set true", timer->onqueue);
 
         return LUNA_TIMER_OK;
 }
@@ -90,9 +90,9 @@ struct core_timer *luna_timer_remove(struct core_timer_list *list, struct core_t
         while (*node) {
                 if (*node == timer) {
                         *node = timer->next;
-                        LUNA_TIMER_ASSERT("remove before clear onqueue", timer->onqueue == true);
+                        LUNA_TIMER_ASSERT("remove before clear onqueue", timer->onqueue);
                         timer->onqueue = false;
-                        LUNA_TIMER_ASSERT("remove done: onqueue cleared", timer->onqueue == false);
+                        LUNA_TIMER_ASSERT("remove done: onqueue cleared", !timer->onqueue);
                         return timer;
                 }
                 node = &(*node)->next;
