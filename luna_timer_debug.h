@@ -1,6 +1,6 @@
-/* luna_timer_opts.h */
-#ifndef LUNA_TIMER_OPTS_H
-#define LUNA_TIMER_OPTS_H
+/* luna_timer_debug.h */
+#ifndef LUNA_TIMER_DEBUG_H
+#define LUNA_TIMER_DEBUG_H
 
 #include "luna_timer_platform.h"
 
