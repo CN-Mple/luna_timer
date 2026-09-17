@@ -61,14 +61,13 @@ static void _callback(struct core_timer *core, void *user_data)
         }
         if (timer->mode == TIMER_PERIODIC) {
                 uint32_t now = luna_timer_get_tick();
-                uint32_t when = timer->core.when + luna_timer_msec_to_tick(timer->msec);
-                
+                uint32_t tick = luna_timer_msec_to_tick(timer->msec);
+                uint32_t when = timer->core.when + tick;
                 if (luna_timer_less_than(when, now)) {
                         LUNA_TIMER_ERROR("next time is out need offset now\r\n", 0, (void)0);
-                        uint32_t delta_tick = now - when;
-                        uint32_t period_tick = luna_timer_msec_to_tick(timer->msec);
-                        uint32_t miss_num = (delta_tick + period_tick - 1) / period_tick;
-                        when += miss_num * period_tick;
+                        uint32_t elapsed = now - when;
+                        uint32_t drift =  (elapsed + tick - 1) / tick;
+                        when += drift * tick;
                 }
                 int ret;
                 ret = luna_timer_set_when(&timer->core, when);
