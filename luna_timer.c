@@ -15,7 +15,6 @@ bool luna_timer_less_than(uint32_t a, uint32_t b)
 
 bool luna_timer_is_onqueue(struct core_timer *timer)
 {
-        LUNA_TIMER_ASSERT("timer is NULL", timer != NULL);
         if (!timer) {
                 return false;
         }
@@ -24,14 +23,12 @@ bool luna_timer_is_onqueue(struct core_timer *timer)
 
 int luna_timer_set_callback(struct core_timer *timer, core_timer_callback_t callback, void *data)
 {
-        LUNA_TIMER_ASSERT("timer is NULL", timer != NULL);
         if (!timer) {
                 return LUNA_TIMER_EINVAL;
         }
         if (luna_timer_is_onqueue(timer)) {
                 return LUNA_TIMER_EONQUEUE;
         }
-        LUNA_TIMER_ASSERT("cannot modify timer while on queue", !timer->onqueue);
         timer->callback = callback;
         timer->data     = data;
         return LUNA_TIMER_OK;
@@ -39,7 +36,6 @@ int luna_timer_set_callback(struct core_timer *timer, core_timer_callback_t call
 
 int luna_timer_set_when(struct core_timer *timer, uint32_t when)
 {
-        LUNA_TIMER_ASSERT("timer is NULL", timer != NULL);
         if (!timer) {
                 return LUNA_TIMER_EINVAL;
         }
@@ -52,8 +48,6 @@ int luna_timer_set_when(struct core_timer *timer, uint32_t when)
 
 int luna_timer_insert(struct core_timer_list *list, struct core_timer *timer)
 {
-        LUNA_TIMER_ASSERT("list is NULL", list != NULL);
-        LUNA_TIMER_ASSERT("timer is NULL", timer != NULL);
         if (!list || !timer) {
                 return LUNA_TIMER_EINVAL;
         }
@@ -77,15 +71,12 @@ int luna_timer_insert(struct core_timer_list *list, struct core_timer *timer)
 
 struct core_timer *luna_timer_remove(struct core_timer_list *list, struct core_timer *timer)
 {
-        LUNA_TIMER_ASSERT("list is NULL", list != NULL);
-        LUNA_TIMER_ASSERT("timer is NULL", timer != NULL);
         if (!list || !timer) {
                 return NULL;
         }
         if (!luna_timer_is_onqueue(timer)) {
                 return NULL;
         }
-        LUNA_TIMER_ASSERT("remove: timer should be on queue", timer->onqueue);
         struct core_timer **node = &(list->head);
         while (*node) {
                 if (*node == timer) {
@@ -103,7 +94,6 @@ struct core_timer *luna_timer_remove(struct core_timer_list *list, struct core_t
 
 uint32_t luna_timer_next_timeout(struct core_timer_list *list)
 {
-        LUNA_TIMER_ASSERT("list is NULL", list != NULL);
         if (!list || !list->head) {
                 return LUNA_TIMER_FOREVER;
         }
@@ -118,7 +108,6 @@ uint32_t luna_timer_next_timeout(struct core_timer_list *list)
 
 uint32_t luna_timer_runloop(struct core_timer_list *list)
 {
-        LUNA_TIMER_ASSERT("runloop list is NULL", list != NULL);
         if (!list || !list->head) {
                 return LUNA_TIMER_FOREVER;
         }
