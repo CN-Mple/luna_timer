@@ -42,7 +42,7 @@ int luna_timer_set_when(struct core_timer *timer, uint32_t when);
 int luna_timer_insert(struct core_timer_list *list, struct core_timer *timer);
 struct core_timer *luna_timer_remove(struct core_timer_list *list, struct core_timer *timer);
 
-uint32_t luna_timer_next_timeout(struct core_timer_list *list);
-uint32_t luna_timer_runloop(struct core_timer_list *list);
+uint32_t luna_timer_get_next_timeout(struct core_timer_list *list);
+uint32_t luna_timer_dispatch(struct core_timer_list *list);
 
 #endif

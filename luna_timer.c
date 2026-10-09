@@ -92,7 +92,7 @@ struct core_timer *luna_timer_remove(struct core_timer_list *list, struct core_t
         return NULL;
 }
 
-uint32_t luna_timer_next_timeout(struct core_timer_list *list)
+uint32_t luna_timer_get_next_timeout(struct core_timer_list *list)
 {
         if (!list || !list->head) {
                 return LUNA_TIMER_FOREVER;
@@ -106,7 +106,7 @@ uint32_t luna_timer_next_timeout(struct core_timer_list *list)
         return when - now;
 }
 
-uint32_t luna_timer_runloop(struct core_timer_list *list)
+uint32_t luna_timer_dispatch(struct core_timer_list *list)
 {
         if (!list || !list->head) {
                 return LUNA_TIMER_FOREVER;
@@ -114,7 +114,7 @@ uint32_t luna_timer_runloop(struct core_timer_list *list)
         struct core_timer *head = NULL;
         struct core_timer *tail = NULL;
         uint32_t timeout;
-        while ((timeout = luna_timer_next_timeout(list)) == 0) {
+        while ((timeout = luna_timer_get_next_timeout(list)) == 0) {
                 struct core_timer *timer = luna_timer_remove(list, list->head);
                 if (!timer) {
                         break;
@@ -140,6 +140,6 @@ uint32_t luna_timer_runloop(struct core_timer_list *list)
                 }
                 timer = next;
         }
-        timeout = luna_timer_next_timeout(list);
+        timeout = luna_timer_get_next_timeout(list);
         return timeout;
 }
